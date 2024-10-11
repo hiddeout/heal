@@ -1,5 +1,5 @@
 import dotenv
-from tools.heal  import Heal
+from tools.heal import Heal
 import datetime
 import asyncio
 from quart import Quart, jsonify, Request, Response
@@ -9,9 +9,11 @@ import time
 app = Quart(__name__)
 bot = Heal()
 
+
 @app.route("/status")
 async def status(request: Request) -> Response:
-    return web.json_response({
+    return web.json_response(
+        {
             "shards": [
                 {
                     "guilds": f"{len([guild for guild in bot.guilds if guild.shard_id == shard.id])}",
@@ -22,15 +24,20 @@ async def status(request: Request) -> Response:
                 }
                 for shard in bot.shards.values()
             ]
-        })
+        }
+    )
+
 
 dotenv.load_dotenv()
 
+
 async def run_bot():
-    await bot.start('')
+    await bot.start("")
+
 
 async def run_quart():
-    await app.run_task(host="216.105.170.98", port=5000)
+    await app.run_task(host="127.0.0.1", port=5000)  # can change if needed
+
 
 async def main():
     await asyncio.gather(run_bot(), run_quart())

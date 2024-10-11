@@ -11,9 +11,10 @@ from discord.ext.commands import Cog, command
 from discord import Interaction, ButtonStyle
 from discord.ui import View, Button
 
-from tools.managers.context import Context 
-from tools.heal import Heal 
+from tools.managers.context import Context
+from tools.heal import Heal
 from tools.configuration import Colors
+
 
 class Player(pomice.Player):
     def __init__(self, *args, **kwargs):
@@ -37,7 +38,6 @@ class Player(pomice.Player):
 
         return await super().set_pause(pause)
 
-    
     async def do_next(self, track: pomice.Track = None) -> None:
         if not self.loop:
             if not track:
@@ -59,7 +59,6 @@ class Player(pomice.Player):
         if self.awaiting:
             self.awaiting = False
 
-
     def set_context(self, ctx: Context):
         self.context = ctx
 
@@ -73,11 +72,12 @@ class Music(commands.Cog):
     """
     Music commands.
     """
+
     def __init__(self, bot):
         self.bot = bot
         self.emoji = "🎵"
         self.pomice = pomice.NodePool()
-    
+
         bot.loop.create_task(self.start_nodes())
 
     async def start_nodes(self):
@@ -93,6 +93,8 @@ class Music(commands.Cog):
             spotify_client_secret="b1d1c1a22289433186bb0941d02499d2",
             identifier="MAIN",
         )
+
+        #
         print(f"Node is ready!")
 
     @commands.Cog.listener()
@@ -116,70 +118,55 @@ class Music(commands.Cog):
                 if len(before.channel.members) == 1:
                     await member.guild.voice_client.disconnect(force=True)
 
-    @commands.hybrid_command(
-        name = "stop"
-    )
+    @commands.hybrid_command(name="stop")
     async def stop(self, ctx: Context):
         """Leaves the voice channel."""
         if ctx.author.voice is None:
-            return  
+            return
 
         if ctx.voice_client is None:
-            return  
+            return
         else:
             await ctx.voice_client.disconnect()
 
-    @commands.hybrid_command(
-        name = "shuffle"
-    )
+    @commands.hybrid_command(name="shuffle")
     async def shuffle(self, ctx: Context):
         """Shuffle the queue."""
         player: Player = ctx.voice_client
         player.shuffle()
         await ctx.approve(f"Shuffling the queue")
 
-    @commands.hybrid_command(
-        name = "resume",
-        aliases = ["res"]
-    )
-    async def resume(self, ctx:Context):
+    @commands.hybrid_command(name="resume", aliases=["res"])
+    async def resume(self, ctx: Context):
         """Resume Playback."""
 
         player: Player = ctx.voice_client
         await player.set_pause(False)
         return await ctx.approve(f"Resumed the song")
 
-    @commands.hybrid_command(
-        name = "pause"
-    )
+    @commands.hybrid_command(name="pause")
     async def pause(self, ctx: Context):
         """Pauses Playback."""
         player: Player = ctx.voice_client
         await player.set_pause(True)
         return await ctx.approve(f"Paused the song")
-    
-    @commands.hybrid_command(
-        name = "skip"
-    )
-    async def skip(self, ctx:Context):
+
+    @commands.hybrid_command(name="skip")
+    async def skip(self, ctx: Context):
         """Skips to the next song in queue."""
         player: Player = ctx.voice_client
         player.loop = False
         player.awaiting = True
         await player.stop()
 
-    @commands.hybrid_command(
-        name = "volume"
-    )
-    async def volume(self, ctx:Context, volume: int):
+    @commands.hybrid_command(name="volume")
+    async def volume(self, ctx: Context, volume: int):
         """Changes the volume of playback."""
         player: Player = ctx.voice_client
         await player.set_volume(volume=volume)
         await ctx.neutral(f"Volume set to **{volume}**")
 
-    @commands.hybrid_command(
-        name = "loop"
-    )
+    @commands.hybrid_command(name="loop")
     async def loop(self, ctx: Context):
         """Loops Playback."""
         player: Player = ctx.voice_client
@@ -189,14 +176,16 @@ class Music(commands.Cog):
 
         if not player.loop:
             player.loop = True
-            return await ctx.neutral(f"Looping [**{player.current_track.title}**]({player.current_track.uri})")
+            return await ctx.neutral(
+                f"Looping [**{player.current_track.title}**]({player.current_track.uri})"
+            )
         else:
             player.loop = False
-            return await ctx.neutral(f"Removed the loop for [**{player.current_track.title}**]({player.current_track.uri})")
+            return await ctx.neutral(
+                f"Removed the loop for [**{player.current_track.title}**]({player.current_track.uri})"
+            )
 
-    @commands.hybrid_command(
-        name = "play"
-    )
+    @commands.hybrid_command(name="play")
     async def play(self, ctx: Context, *, query: str):
         """Plays a song from a query."""
         if not ctx.voice_client:
@@ -222,12 +211,13 @@ class Music(commands.Cog):
             track = results[0]
             if player.is_playing:
                 player.queue.put(track)
-                await ctx.neutral(f"Added [**{track.title}**]({track.uri}) to the queue")
+                await ctx.neutral(
+                    f"Added [**{track.title}**]({track.uri}) to the queue"
+                )
 
         if not player.is_playing:
             player.current_track = track
             await player.do_next(track)
-            
 
 
 async def setup(bot: Heal):
