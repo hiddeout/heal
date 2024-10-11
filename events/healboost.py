@@ -43,7 +43,7 @@ class healboost(Cog):
 
     @commands.Cog.listener("on_member_update")
     async def on_boost_moved(self, before: discord.Member, after: discord.Member):
-        if before.guild.id == 1244403114447212564:
+        if before.guild.id == : # change role 
             if (
                 before.guild.premium_subscriber_role in before.roles
                 and after.guild.premium_subscriber_role not in after.roles
@@ -51,7 +51,7 @@ class healboost(Cog):
                 await self.bot.pool.execute(
                     "DELETE FROM premium WHERE user_id = $1", after.id
                 )
-                role = before.guild.get_role(1273953446831325206)
+                role = before.guild.get_role() # change role
                 await after.remove_roles(role)
                 embed = discord.Embed(
                     description=f"> Your premium access has been revoked for transferring your boosts.",
